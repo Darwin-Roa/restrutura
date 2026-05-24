@@ -68,7 +68,7 @@ El proyecto está dividido en dos directorios principales: `backend-php` y `fron
    ```bash
    php artisan key:generate
    ```
-5. **Base de datos:** Cree una base de datos vacía en MySQL. Luego, actualice las credenciales en su archivo `.env`:
+5. **Base de datos e Inteligencia Artificial:** Cree una base de datos vacía en MySQL. Luego, actualice las credenciales y su API Key de Gemini en su archivo `.env`:
    ```env
    DB_CONNECTION=mysql
    DB_HOST=127.0.0.1
@@ -76,6 +76,9 @@ El proyecto está dividido en dos directorios principales: `backend-php` y `fron
    DB_DATABASE=nombre_de_su_base_de_datos
    DB_USERNAME=root
    DB_PASSWORD=
+
+   # Inteligencia Artificial (Google Gemini)
+   GEMINI_API_KEY="su_clave_api_de_google_gemini_aqui"
    ```
 6. Ejecute las migraciones y pueble la base de datos con los datos iniciales y usuarios de prueba:
    ```bash
@@ -140,3 +143,5 @@ El comando `migrate:fresh --seed` ejecutado anteriormente genera usuarios de pru
 
 ---
 *Desarrollado para optimizar la calidad académica y facilitar el proceso de gestión institucional.*
+ 
+
