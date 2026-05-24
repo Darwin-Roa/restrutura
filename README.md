@@ -111,11 +111,11 @@ El comando `migrate:fresh --seed` ejecutado anteriormente genera usuarios de pru
 
 | Rol | Correo Electrónico | Contraseña |
 | --- | --- | --- |
-| **Administrador** | `admin@unisimon.edu.co` | `password` |
-| **Director / Coordinador** | `director@unisimon.edu.co` | `password` |
-| **Profesor** | `profesor@unisimon.edu.co` | `password` |
+| **Administrador** | `admin@unisimon.edu.co` | `123456` |
+| **Director / Coordinador** | `director@unisimon.edu.co` | `123456` |
+| **Profesor** | `profesor@unisimon.edu.co` | `123456` |
 
-*(La contraseña por defecto para todos los usuarios semilla es `password`)*
+*(La contraseña por defecto para todos los usuarios semilla es `123456`)*
 
 ---
 
