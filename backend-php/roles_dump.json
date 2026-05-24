@@ -1,0 +1,22 @@
+[
+    {
+        "name": "admin",
+        "permissions": "[\"ver_dashboard\",\"ver_notificaciones\",\"subir_evaluacion\",\"ver_evaluaciones\",\"editar_evaluacion\",\"eliminar_evaluacion\",\"generar_plan_ia\",\"ver_planes\",\"editar_plan\",\"aprobar_planes\",\"eliminar_plan\",\"ver_historial\",\"ver_seguimiento_global\",\"ver_estadisticas\",\"analisis_ia\",\"plan_trabajo\",\"crear_tarea\",\"editar_tarea\",\"eliminar_tarea\",\"asignar_tareas\",\"enviar_recordatorios\",\"bandeja_evidencias\",\"subir_evidencia\",\"verificar_evidencias\",\"descargar_evidencia\",\"exportar\",\"exportar_excel\",\"exportar_global\",\"gestionar_cursos\",\"crear_curso\",\"eliminar_curso\",\"asignar_cursos\",\"gestionar_usuarios\",\"crear_usuario\",\"editar_usuario\",\"desactivar_usuario\",\"gestionar_roles\",\"gestionar_periodos\",\"gestionar_areas\",\"gestionar_departamentos\",\"ver_buenas_practicas\",\"publicar_reconocimiento\"]"
+    },
+    {
+        "name": "director",
+        "permissions": "[\"ver_dashboard\",\"ver_notificaciones\",\"subir_evaluacion\",\"ver_evaluaciones\",\"editar_evaluacion\",\"generar_plan_ia\",\"ver_planes\",\"editar_plan\",\"aprobar_planes\",\"ver_historial\",\"ver_seguimiento_global\",\"ver_estadisticas\",\"analisis_ia\",\"plan_trabajo\",\"crear_tarea\",\"editar_tarea\",\"eliminar_tarea\",\"asignar_tareas\",\"enviar_recordatorios\",\"bandeja_evidencias\",\"verificar_evidencias\",\"descargar_evidencia\",\"exportar\",\"exportar_excel\",\"exportar_global\",\"gestionar_cursos\",\"crear_curso\",\"eliminar_curso\",\"asignar_cursos\",\"ver_buenas_practicas\",\"publicar_reconocimiento\"]"
+    },
+    {
+        "name": "coordinador",
+        "permissions": "[\"ver_dashboard\",\"ver_notificaciones\",\"subir_evaluacion\",\"ver_evaluaciones\",\"generar_plan_ia\",\"ver_planes\",\"aprobar_planes\",\"ver_historial\",\"ver_seguimiento_global\",\"ver_estadisticas\",\"plan_trabajo\",\"crear_tarea\",\"editar_tarea\",\"asignar_tareas\",\"enviar_recordatorios\",\"bandeja_evidencias\",\"verificar_evidencias\",\"descargar_evidencia\",\"exportar\",\"exportar_excel\",\"gestionar_cursos\",\"crear_curso\",\"asignar_cursos\",\"ver_buenas_practicas\"]"
+    },
+    {
+        "name": "profesor",
+        "permissions": "[\"ver_dashboard\",\"ver_planes\",\"plan_trabajo\",\"bandeja_evidencias\",\"subir_evidencia\",\"descargar_evidencia\",\"ver_buenas_practicas\"]"
+    },
+    {
+        "name": "asistente_",
+        "permissions": "[\"seguimiento_general\",\"subir_evaluacion\",\"copilot_ia\"]"
+    }
+]

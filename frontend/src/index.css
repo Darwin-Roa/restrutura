@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+@import "tailwindcss";
+
+/* ─── Paleta Institucional — Universidad Simón Bolívar ─── */
+:root {
+  /* Verde institucional USB */
+  --usb-green:        #09843B;
+  --usb-green-dark:   #066b2f;
+  --usb-green-deep:   #044d22;
+  --usb-green-light:  #e6f4ec;
+  --usb-green-muted:  #d1ead9;
+
+  /* Dorado / acento premium */
+  --usb-gold:         #C9A84C;
+  --usb-gold-light:   #fdf5e0;
+  --usb-gold-muted:   #f0e0b0;
+
+  /* Grises elegantes */
+  --usb-slate:        #1e2a20;
+  --usb-charcoal:     #2d3a2e;
+  --usb-gray:         #4b5563;
+  --usb-gray-light:   #9ca3af;
+  --usb-border:       #d1d5db;
+  --usb-border-light: #e5e7eb;
+  --usb-surface:      #f4f7f5;
+  --usb-surface-card: #ffffff;
+
+  /* Estados */
+  --usb-danger:       #b91c1c;
+  --usb-danger-light: #fef2f2;
+  --usb-warning:      #92400e;
+  --usb-warning-light:#fffbeb;
+  --usb-info:         #1e40af;
+  --usb-info-light:   #eff6ff;
+}
+
+@theme {
+  --color-primary:       #09843B;
+  --color-primary-light: #e6f4ec;
+  --color-primary-dark:  #066b2f;
+  --color-ai:            #3C3489;
+  --color-ai-light:      #EEEDFE;
+  --color-success:       #09843B;
+  --color-success-light: #e6f4ec;
+  --color-warning:       #92400e;
+  --color-warning-light: #fffbeb;
+  --color-danger:        #b91c1c;
+  --color-danger-light:  #fef2f2;
+  --color-text-primary:  #1e2a20;
+  --color-text-secondary:#4b5563;
+  --color-border:        #d1d5db;
+  --color-surface:       #f4f7f5;
+}
+
+@layer base {
+  * { box-sizing: border-box; }
+  
+  body {
+    background-color: var(--usb-surface);
+    color: var(--usb-slate);
+    font-family: 'Inter', system-ui, sans-serif;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* --- Blue color overrides (replace with USB green palette) */
+.bg-blue-50, .bg-blue-100, .bg-blue-200 { background-color: var(--usb-green-light) !important; }
+.bg-blue-50\/50 { background-color: var(--usb-green-light) !important; }
+.text-blue-600, .text-blue-700, .text-blue-800, .text-blue-900 { color: var(--usb-green) !important; }
+.border-blue-100, .border-blue-200, .border-blue-400, .border-blue-500, .border-blue-600, .border-blue-800 { border-color: var(--usb-green) !important; }
+.hover\:bg-blue-50:hover { background-color: var(--usb-green-light) !important; }
+.hover\:bg-blue-100:hover { background-color: var(--usb-green) !important; }
+.focus\:border-blue-500:focus { border-color: var(--usb-green) !important; }
+.focus\:ring-blue-500:focus { box-shadow: 0 0 0 2px var(--usb-green) !important; }
+} 
+/* --- Hex color overrides (replace institutional blue hexes with USB green) */
+[class*="bg-[#185FA5]"] { background-color: var(--usb-green) !important; }
+[class*="text-[#185FA5]"] { color: var(--usb-green) !important; }
+[class*="border-[#185FA5]"] { border-color: var(--usb-green) !important; }
+[class*="bg-[#0C447C]"] { background-color: var(--usb-green-dark) !important; }
+[class*="hover\\:bg-[#0C447C]"]:hover { background-color: var(--usb-green-dark) !important; }
+
+/* ─── Custom Animations ─── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+

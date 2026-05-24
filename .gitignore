@@ -1,0 +1,30 @@
+/skills/
+/scratch/
+/docs/
+/.gemini/
+.vscode/
+GEMINI.md
+CLAUDE.md
+superpowers.zip
+*.js
+*.mjs
+*.bat
+*.log
+composer.phar
+
+# Ignorar dependencias
+/frontend/node_modules/
+/backend-php/vendor/
+
+# Ignorar variables de entorno
+/frontend/.env
+/frontend/.env.local
+/backend-php/.env
+
+# Si hay base de datos local de SQLite o similares
+*.sqlite
+*.sqlite3
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
