@@ -144,6 +144,10 @@ class PlanController extends Controller
                 'excludeSelfEvaluation' => true,
             ]);
 
+            if (is_array($aiResult)) {
+                $aiResult['ai_prompt_context'] = "Docente: {$teacher->name} | Cursos: " . $assignments->map(fn($a) => $a->course?->name ?? 'Sin curso')->join(', ') . " | Calificaciones: " . ($evaluation ? "Estudiantes: {$evaluation->score_students}, Director: {$evaluation->score_director}, Autoevaluación: {$evaluation->score_self}, Total: {$evaluation->score_total}" : "Sin evaluaciones previas en este periodo.");
+            }
+
             if (!empty($draggedActions)) {
                 $actionsKey = isset($aiResult['plan_actions']) ? 'plan_actions' : 'actions';
                 if (!isset($aiResult[$actionsKey])) {
@@ -419,6 +423,7 @@ class PlanController extends Controller
                             'work_plan' => $aiResult['work_plan'] ?? [],
                             'history_analysis' => $aiResult['history_analysis'] ?? '',
                             'ai_generated_at' => $aiGenAt,
+                            'ai_prompt_context' => "Docente: {$teacher->name} | Cursos: " . $assignments->map(fn($a) => $a->course?->name ?? 'Sin curso')->join(', ') . " | Calificaciones: " . ($evaluation ? "Estudiantes: {$evaluation->score_students}, Director: {$evaluation->score_director}, Autoevaluación: {$evaluation->score_self}, Total: {$evaluation->score_total}" : "Sin evaluaciones previas en este periodo."),
                         ]);
 
                         $actions = $aiResult['plan_actions'] ?? ($aiResult['actions'] ?? []);
