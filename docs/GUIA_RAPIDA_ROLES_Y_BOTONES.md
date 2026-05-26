@@ -1,4 +1,4 @@
-# 🎯 Guía Rápida: Relación de Roles y Diccionario de Botones
+# Guía Rápida: Relación de Roles
 ## Sistema de Gestión de Planes de Mejora Profesoral con IA · Universidad Simón Bolívar
 
 Esta guía rápida explica de manera visual y directa cómo interactúan los tres roles del sistema (Administrador, Director y Profesor) y proporciona un mapa claro de la función exacta de cada botón en la plataforma.
