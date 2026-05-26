@@ -1,4 +1,4 @@
-# 📖 Manual de Usuario e Interfaz Detallado (Paso a Paso, Botón a Botón)
+# 📖 Manual de Usuario e Interfaz Detallado.
 
 Este documento describe de manera exhaustiva y detallada cada pantalla, casilla, botón, alerta, notificación y funcionalidad del **Sistema de Gestión de Planes de Mejora Profesoral con IA** de la Universidad Simón Bolívar. Está organizado rol por rol y pantalla por pantalla para servir como guía de referencia absoluta.
 
