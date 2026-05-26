@@ -9,14 +9,24 @@ Plataforma web integral diseñada para la gestión, seguimiento, auditoría y ev
 
 ---
 
-## ✨ Características Principales
+## ⚙️ Características Principales
 
 - **🛡️ Gestión de Roles:** Panel especializado con diferentes niveles de acceso (Administrador, Director y Profesor).
 - **🤖 Copilot IA:** Integración con Inteligencia Artificial para generar análisis automáticos y sugerencias sobre las evaluaciones estudiantiles.
 - **📊 Dashboard Interactivo:** Visualización del progreso de los docentes en tiempo real, incluyendo un "Heatmap" (Mapa de Calor) de tareas completadas por áreas de gestión.
-- **📁 Auditoría de Evidencias:** Sistema para que los profesores adjunten evidencias (archivos, enlaces, respuestas) y los directores puedan revisarlas, aprobarlas o rechazarlas.
+- **📁 Auditoría de Evidencias:** Sistema para que los profesores adjunten evidencias (archivos, enlaces, respuestas) y los directores puedan revisarlas, aprobadas o rechazadas.
 - **📄 Generación de PDFs:** Exportación automática de cartas de compromiso y planes de mejora estructurados listos para imprimir o guardar, con firmas digitales integradas.
 - **⚙️ Configuración Dinámica:** Panel administrativo para gestionar periodos activos, cursos, departamentos y áreas institucionales.
+
+---
+
+## 📂 Documentación del Proyecto
+
+El proyecto cuenta con documentación detallada que se renderiza directamente en GitHub:
+
+- 🎯 [**Guía Rápida: Relación de Roles y Botones**](file:///c:/Users/darwin%20roa/restrutura/docs/GUIA_RAPIDA_ROLES_Y_BOTONES.md): Resumen visual y directo de cómo se conectan los tres roles en el ciclo del periodo, junto con un diccionario de qué hace cada botón en el sistema.
+- 📖 [**Manual de Usuario e Interfaz Detallado**](file:///c:/Users/darwin%20roa/restrutura/docs/manual_completo.md): Guía paso a paso, click por click y botón por botón para cada uno de los roles (Administrador, Director y Profesor).
+- 🧠 [**Documentación Técnica y Funcional**](file:///c:/Users/darwin%20roa/restrutura/docs/documentacion_tecnica.md): Explicación detallada del funcionamiento interno, la comunicación Axios/Sanctum, la lógica de la IA con Gemini (limites de peticiones por lotes), el algoritmo de Arrastre (Carry-over) y exportación PDF.
 
 ---
 
