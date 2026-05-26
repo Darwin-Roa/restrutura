@@ -80,10 +80,9 @@ El proyecto está dividido en dos directorios principales: `backend-php` y `fron
    # Inteligencia Artificial (Google Gemini)
    GEMINI_API_KEY="su_clave_api_de_google_gemini_aqui"
    ```
-6. Ejecute las migraciones y pueble la base de datos con los datos iniciales y usuarios de prueba:
-   ```bash
-   php artisan migrate:fresh --seed
-   ```
+6. **IMPORTANTE - Base de Datos:** Para evitar errores de sincronización con las nuevas tablas de IA, **NO ejecute `php artisan migrate`**. 
+   - Por favor, importe directamente el archivo `.sql` adjunto a esta entrega dentro de su gestor de base de datos (phpMyAdmin).
+   - Este archivo ya contiene toda la estructura final, relaciones y los datos de prueba listos para funcionar.
 7. Inicie el servidor de desarrollo:
    ```bash
    php artisan serve
@@ -92,7 +91,7 @@ El proyecto está dividido en dos directorios principales: `backend-php` y `fron
 
 ### 2. Configuración del Frontend (React)
 
-1. Abra una **nueva terminal** (manteniendo el backend encendido) y navegue a la carpeta del frontend:
+1. Abra una **nueva terminal** y navegue a la carpeta del frontend:
    ```bash
    cd frontend
    ```
@@ -100,11 +99,22 @@ El proyecto está dividido en dos directorios principales: `backend-php` y `fron
    ```bash
    npm install
    ```
-3. Inicie el servidor de Vite:
+3. **Variables de Entorno (IMPORTANTE):** Cree un archivo `.env` en la carpeta `frontend` y especifique la ruta pública de su backend:
+   ```env
+   VITE_API_URL=https://su-dominio.com/backend-php/public/api
+   
+   # O si está en su computadora local (desarrollo):
+   # VITE_API_URL=http://127.0.0.1:8000/api
+   ```
+4. Para probarlo en modo desarrollo:
    ```bash
    npm run dev
    ```
-4. Abra su navegador en la dirección indicada (generalmente `http://localhost:5173`).
+5. **Para Producción (Despliegue final):** Compile el proyecto con:
+   ```bash
+   npm run build
+   ```
+   *Esto generará la carpeta `dist/` con los archivos finales listos para subirse al servidor.*
 
 ---
 
