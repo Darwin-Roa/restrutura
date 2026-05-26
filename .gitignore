@@ -6,8 +6,7 @@
 GEMINI.md
 CLAUDE.md
 superpowers.zip
-*.js
-*.mjs
+
 *.bat
 *.log
 composer.phar
