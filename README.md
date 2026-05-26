@@ -25,6 +25,7 @@ Plataforma web integral diseñada para la gestión, seguimiento, auditoría y ev
 El proyecto cuenta con documentación detallada que se renderiza directamente en GitHub:
 
 - 🎯 [**Guía Rápida: Relación de Roles y Botones**](file:///c:/Users/darwin%20roa/restrutura/docs/GUIA_RAPIDA_ROLES_Y_BOTONES.md): Resumen visual y directo de cómo se conectan los tres roles en el ciclo del periodo, junto con un diccionario de qué hace cada botón en el sistema.
+- 🤖 [**Guía de Configuración de IA**](file:///c:/Users/darwin%20roa/restrutura/docs/COMO_CAMBIAR_API_IA.md): Explicación paso a paso de cómo configurar y alternar el proveedor de IA (Gemini o ChatGPT) y sus claves de API en el archivo `.env`.
 - 📖 [**Manual de Usuario e Interfaz Detallado**](file:///c:/Users/darwin%20roa/restrutura/docs/manual_completo.md): Guía paso a paso, click por click y botón por botón para cada uno de los roles (Administrador, Director y Profesor).
 - 🧠 [**Documentación Técnica y Funcional**](file:///c:/Users/darwin%20roa/restrutura/docs/documentacion_tecnica.md): Explicación detallada del funcionamiento interno, la comunicación Axios/Sanctum, la lógica de la IA con Gemini (limites de peticiones por lotes), el algoritmo de Arrastre (Carry-over) y exportación PDF.
 
