@@ -16,6 +16,7 @@ use App\Http\Controllers\AreaController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\NotificationSettingsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -82,6 +83,7 @@ Route::middleware('jwt.auth')->group(function () {
     // --- Users (admin-only para CUD) ---
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/profile/signature', [AuthController::class, 'uploadSignature']);
+    Route::delete('/profile/signature', [AuthController::class, 'deleteSignature']);
     Route::get('/users', [UserController::class, 'index']);
     Route::post('/users', [UserController::class, 'store'])->middleware('role:admin');
     Route::put('/users/{id}', [UserController::class, 'update'])->middleware('role:admin');
@@ -171,8 +173,14 @@ Route::middleware('jwt.auth')->group(function () {
     Route::put('/roles/{id}', [RoleController::class, 'update'])->middleware('role:director,admin');
     Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->middleware('role:director,admin');
 
-    // --- Notifications ---
+    // --- Notifications (in-app) ---
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
     Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+
+    // --- Notification Settings (Admin) ---
+    Route::get('/admin/notification-settings', [NotificationSettingsController::class, 'index'])->middleware('role:admin');
+    Route::post('/admin/notification-settings/dias', [NotificationSettingsController::class, 'saveDias'])->middleware('role:admin');
+    Route::patch('/admin/departments/{id}/email', [NotificationSettingsController::class, 'updateDepartmentEmail'])->middleware('role:admin');
+    Route::post('/admin/notifications/test-run', [NotificationSettingsController::class, 'testRun'])->middleware('role:admin');
 });

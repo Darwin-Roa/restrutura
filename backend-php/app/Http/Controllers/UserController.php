@@ -46,6 +46,7 @@ class UserController extends Controller
                 'nombre' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
+                'password_hash' => '', // Legacy column support
                 'role' => $request->role ?? 'profesor',
                 'programa_id' => $request->programa_id,
                 'cedula' => $request->cedula,
@@ -110,9 +111,8 @@ class UserController extends Controller
             if (!$user) {
                 return response()->json(['message' => 'Usuario no encontrado'], 404);
             }
-            $user->is_active = false;
-            $user->save();
-            return response()->json(['success' => true, 'message' => 'Usuario desactivado correctamente.']);
+            $user->delete();
+            return response()->json(['success' => true, 'message' => 'Usuario eliminado definitivamente de la base de datos.']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }

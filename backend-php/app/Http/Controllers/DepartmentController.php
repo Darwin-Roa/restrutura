@@ -10,9 +10,10 @@ class DepartmentController extends Controller
     private function formatDept($dept)
     {
         return [
-            'id' => $dept->id,
-            'name' => $dept->nombre,
-            'is_active' => (bool)$dept->activo
+            'id'            => $dept->id,
+            'name'          => $dept->nombre,
+            'email_contacto'=> $dept->email_contacto,
+            'is_active'     => (bool)$dept->activo
         ];
     }
 
@@ -41,5 +42,17 @@ class DepartmentController extends Controller
     {
         Programa::destroy($id);
         return response()->json(['success' => true, 'message' => 'Departamento eliminado']);
+    }
+
+    /**
+     * Actualiza el correo de contacto de un departamento.
+     * PATCH /departments/{id}/email
+     */
+    public function updateEmail(Request $request, $id)
+    {
+        $dept = Programa::findOrFail($id);
+        $dept->email_contacto = $request->email_contacto;
+        $dept->save();
+        return response()->json(['success' => true, 'department' => $this->formatDept($dept)]);
     }
 }

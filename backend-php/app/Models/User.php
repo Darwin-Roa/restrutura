@@ -23,6 +23,7 @@ class User extends Authenticatable
         'email',
         'cedula',
         'password',
+        'password_hash',
         'role',
         'programa_id',
         'is_active',

@@ -5,7 +5,7 @@ import {
   LayoutDashboard, FileText, History, Square,
   ClipboardList, Download, Users, BookOpen,
   Calendar, Building2, Sparkles, GraduationCap,
-  LogOut, ShieldCheck
+  LogOut, ShieldCheck, Bell
 } from 'lucide-react';
 
 export const Sidebar = () => {
@@ -24,13 +24,14 @@ export const Sidebar = () => {
       { id: 'export',     path: '/director/exportar',  icon: <Download size={15}/>,        label: 'Control de Entrega', requiredPermissions: ['exportar', 'exportar_excel', 'exportar_global'] },
     ],
     admin: [
-      { id: 'admin-dash',        path: '/admin',               icon: <LayoutDashboard size={15}/>, label: 'Panel Administrativo' },
-      { id: 'admin-users',       path: '/admin/usuarios',      icon: <Users size={15}/>,           label: 'Gestión Usuarios' },
-      { id: 'admin-roles',       path: '/admin/roles',         icon: <ShieldCheck size={15}/>,     label: 'Gestión Roles' },
-      { id: 'admin-courses',     path: '/admin/cursos',        icon: <BookOpen size={15}/>,        label: 'Gestión Cursos' },
-      { id: 'admin-periods',     path: '/admin/periodos',      icon: <Calendar size={15}/>,        label: 'Gestión Periodos' },
-      { id: 'admin-areas',       path: '/admin/areas',         icon: <ClipboardList size={15}/>,   label: 'Gestión Áreas' },
-      { id: 'admin-departments', path: '/admin/departamentos', icon: <Building2 size={15}/>,       label: 'Gestión Departamentos' },
+      { id: 'admin-dash',         path: '/admin',                icon: <LayoutDashboard size={15}/>, label: 'Panel Administrativo' },
+      { id: 'admin-users',        path: '/admin/usuarios',       icon: <Users size={15}/>,           label: 'Gestión Usuarios' },
+      { id: 'admin-roles',        path: '/admin/roles',          icon: <ShieldCheck size={15}/>,     label: 'Gestión Roles' },
+      { id: 'admin-courses',      path: '/admin/cursos',         icon: <BookOpen size={15}/>,        label: 'Gestión Cursos' },
+      { id: 'admin-periods',      path: '/admin/periodos',       icon: <Calendar size={15}/>,        label: 'Gestión Periodos' },
+      { id: 'admin-areas',        path: '/admin/areas',          icon: <ClipboardList size={15}/>,   label: 'Gestión Áreas' },
+      { id: 'admin-departments',  path: '/admin/departamentos',  icon: <Building2 size={15}/>,       label: 'Gestión Departamentos' },
+      { id: 'admin-notifs',       path: '/admin/notificaciones', icon: <Bell size={15}/>,            label: 'Notificaciones' },
     ]
   };
 

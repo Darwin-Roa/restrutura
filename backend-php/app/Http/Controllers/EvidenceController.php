@@ -37,17 +37,44 @@ class EvidenceController extends Controller
                 
                 $file->move($uploadPath, $filename);
 
-                $evidence = Evidence::create([
-                    'file_name' => $originalName,
-                    'file_path' => 'uploads/' . $filename,
-                    'file_type' => substr($fileMime, 0, 50),
-                    'file_size' => $fileSize,
-                    'teacher_id' => $jwtUser->id,
-                    'period_id' => $activePeriod?->id,
-                    'task_assignment_id' => $taskId,
-                    'plan_action_id' => $planActionId,
-                    'verified' => null,
-                ]);
+                $existingEvidence = null;
+                if ($taskId) {
+                    $existingEvidence = Evidence::where('task_assignment_id', $taskId)->first();
+                } elseif ($planActionId) {
+                    $existingEvidence = Evidence::where('plan_action_id', $planActionId)->first();
+                }
+
+                if ($existingEvidence) {
+                    // Borrar físicamente el archivo viejo del servidor para no ocupar espacio basura
+                    $oldPath = public_path($existingEvidence->file_path);
+                    if (file_exists($oldPath) && is_file($oldPath)) {
+                        @unlink($oldPath);
+                    }
+                    
+                    // Sobreescribir la evidencia existente
+                    $existingEvidence->update([
+                        'file_name' => $originalName,
+                        'file_path' => 'uploads/' . $filename,
+                        'file_type' => substr($fileMime, 0, 50),
+                        'file_size' => $fileSize,
+                        'verified' => null, // Devolver a estado "Pendiente" si ya estaba aprobada/rechazada
+                        'verified_at' => null,
+                        'verified_by' => null,
+                    ]);
+                    $evidence = $existingEvidence;
+                } else {
+                    $evidence = Evidence::create([
+                        'file_name' => $originalName,
+                        'file_path' => 'uploads/' . $filename,
+                        'file_type' => substr($fileMime, 0, 50),
+                        'file_size' => $fileSize,
+                        'teacher_id' => $jwtUser->id,
+                        'period_id' => $activePeriod?->id,
+                        'task_assignment_id' => $taskId,
+                        'plan_action_id' => $planActionId,
+                        'verified' => null,
+                    ]);
+                }
             }
 
             // Auto-update linked item status to completed
@@ -71,14 +98,36 @@ class EvidenceController extends Controller
                 }
             }
 
-            // Notify Directors of the same program
+            // Notify using department contact email (configured by admin)
             if ($jwtUser->programa_id) {
                 try {
+                    $programa = \App\Models\Programa::find($jwtUser->programa_id);
+
+                    // 1. Notificación in-app a los directores del departamento
                     $directors = User::whereNotIn('role', ['profesor', 'admin', 'estudiante'])
                                      ->where('programa_id', $jwtUser->programa_id)
                                      ->get();
                     $notificationItem = $evidence ?? (object)['id' => $taskId ?? $planActionId];
                     \Illuminate\Support\Facades\Notification::send($directors, new \App\Notifications\EvidenceUploaded($notificationItem, $jwtUser, $taskName));
+
+                    // 2. Correo al email institucional del programa y copia al profesor
+                    $emailsToNotify = [];
+                    if ($programa && $programa->email_contacto) {
+                        $emailsToNotify[] = $programa->email_contacto;
+                    }
+
+                    // Agregar el correo del propio profesor (confirmación de entrega)
+                    if ($jwtUser->email) {
+                        $emailsToNotify[] = $jwtUser->email;
+                    }
+
+                    // Limpiar correos vacíos o duplicados
+                    $emailsToNotify = array_unique(array_filter($emailsToNotify));
+
+                    if (count($emailsToNotify) > 0) {
+                        \Illuminate\Support\Facades\Mail::to($emailsToNotify)
+                            ->queue(new \App\Mail\EvidenciaSubidaMail($jwtUser, $taskName, $programa ? $programa->nombre : 'Sin Programa'));
+                    }
                 } catch (\Exception $notifEx) {
                     \Illuminate\Support\Facades\Log::warning("Notification failed to send: " . $notifEx->getMessage());
                 }

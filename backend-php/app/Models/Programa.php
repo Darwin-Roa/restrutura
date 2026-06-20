@@ -10,7 +10,7 @@ class Programa extends Model
 
     public $timestamps = false;
 
-    protected $fillable = ['nombre', 'activo'];
+    protected $fillable = ['nombre', 'activo', 'email_contacto'];
 
     protected $casts = [
         'activo' => 'integer',

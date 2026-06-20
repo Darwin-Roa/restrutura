@@ -23,6 +23,7 @@ import { PeriodManagement } from './pages/admin/PeriodManagement';
 import { AreaManagement } from './pages/admin/AreaManagement';
 import { DepartmentManagement } from './pages/admin/DepartmentManagement';
 import { GestionCursos } from './pages/director/GestionCursos';
+import { NotificationSettings } from './pages/admin/NotificationSettings';
 
 function App() {
   const { user, loading } = useAuth();
@@ -42,6 +43,7 @@ function App() {
           <Route path="periodos" element={<PeriodManagement />} />
           <Route path="areas" element={<AreaManagement />} />
           <Route path="departamentos" element={<DepartmentManagement />} />
+          <Route path="notificaciones" element={<NotificationSettings />} />
         </Route>
       </Route>
 

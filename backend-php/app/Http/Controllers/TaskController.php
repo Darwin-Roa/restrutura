@@ -23,8 +23,10 @@ class TaskController extends Controller
                 $query->where('period_id', $periodId);
             }
 
-            // Las tareas institucionales son globales del periodo académico.
-            // Todos los directores y admins deben visualizar todas las tareas activas.
+            // Si el usuario es director, solo ve las tareas de su programa
+            if ($jwtUser->role !== 'admin' && $jwtUser->programa_id) {
+                $query->where('programa_id', $jwtUser->programa_id);
+            }
 
             $tasks = $query->orderBy('id', 'desc')->get();
             return response()->json(['success' => true, 'tasks' => $tasks]);
@@ -58,6 +60,9 @@ class TaskController extends Controller
 
             $data['created_by'] = $request->user()->id;
             $data['is_active'] = true;
+            if ($request->user()->role !== 'admin' && $request->user()->programa_id) {
+                $data['programa_id'] = $request->user()->programa_id;
+            }
             $task = FixedTask::create($data);
             return response()->json(['success' => true, 'task' => $task]);
         } catch (\Exception $e) {
@@ -124,8 +129,12 @@ class TaskController extends Controller
             $activePeriod = Period::where('is_active', true)->firstOrFail();
             $jwtUser = $request->user();
             
-            // Obtener todas las tareas institucionales activas del periodo
-            $tasks = FixedTask::where('period_id', $activePeriod->id)->where('is_active', true)->get();
+            // Obtener todas las tareas institucionales activas del periodo para este programa
+            $tasksQuery = FixedTask::where('period_id', $activePeriod->id)->where('is_active', true);
+            if ($jwtUser->role !== 'admin' && $jwtUser->programa_id) {
+                $tasksQuery->where('programa_id', $jwtUser->programa_id);
+            }
+            $tasks = $tasksQuery->get();
             
             // Si el usuario es director, solo asocia con los profesores de su programa académico
             $professorsQuery = User::where('role', 'profesor')->where('is_active', true);
@@ -278,7 +287,11 @@ class TaskController extends Controller
             $isValidUser = $userId ? User::where('id', $userId)->exists() : false;
             $createdBy = $isValidUser ? $userId : User::where('role', 'admin')->where('is_active', true)->value('id');
             
-            $existing = FixedTask::where('period_id', $activePeriod->id)->where('is_active', true)->count();
+            $existingQuery = FixedTask::where('period_id', $activePeriod->id)->where('is_active', true);
+            if ($isValidUser && $request->user()->role !== 'admin' && $request->user()->programa_id) {
+                $existingQuery->where('programa_id', $request->user()->programa_id);
+            }
+            $existing = $existingQuery->count();
             
             $TAREAS = [
                 [
@@ -633,9 +646,12 @@ class TaskController extends Controller
             $pYear = date('Y', strtotime($pStart));
 
             foreach ($TAREAS as $t) {
-                $exists = FixedTask::where('period_id', $activePeriod->id)
-                    ->where('activity', $t['activity'])
-                    ->exists();
+                $existsQuery = FixedTask::where('period_id', $activePeriod->id)
+                    ->where('activity', $t['activity']);
+                if ($isValidUser && $request->user()->role !== 'admin' && $request->user()->programa_id) {
+                    $existsQuery->where('programa_id', $request->user()->programa_id);
+                }
+                $exists = $existsQuery->exists();
                 if (!$exists) {
                     $deadline = $t['deadline_month'];
                     if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $deadline)) {
@@ -659,6 +675,7 @@ class TaskController extends Controller
                         'created_by' => $createdBy,
                         'is_active' => true,
                         'period_id' => $activePeriod->id,
+                        'programa_id' => ($isValidUser && $request->user()->role !== 'admin') ? $request->user()->programa_id : null,
                     ]);
                     $inserted++;
                 }

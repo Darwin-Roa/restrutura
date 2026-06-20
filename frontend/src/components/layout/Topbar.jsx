@@ -91,16 +91,17 @@ export const Topbar = ({ title }) => {
                 <input 
                   type="file" 
                   accept="image/png, image/jpeg"
-                  className="block w-full text-[10px] text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+                  className="block w-full text-[10px] text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer mb-2"
                   onChange={async (e) => {
                     if (e.target.files && e.target.files[0]) {
                       const formData = new FormData();
                       formData.append('signature', e.target.files[0]);
                       try {
-                        await api.post('/profile/signature', formData, {
+                        const res = await api.post('/profile/signature', formData, {
                           headers: { 'Content-Type': 'multipart/form-data' }
                         });
                         alert('¡Firma guardada correctamente! Ahora aparecerá en tus PDFs generados.');
+                        if (user) user.signature_path = res.data.path;
                         setIsProfileOpen(false);
                       } catch (err) {
                         alert('Error al subir firma: ' + (err.response?.data?.message || err.message));
@@ -108,6 +109,26 @@ export const Topbar = ({ title }) => {
                     }
                   }}
                 />
+                
+                {user?.signature_path && (
+                  <button
+                    onClick={async () => {
+                      if (window.confirm('¿Estás seguro de que deseas borrar tu firma actual?')) {
+                        try {
+                          await api.delete('/profile/signature');
+                          alert('Firma eliminada exitosamente.');
+                          if (user) user.signature_path = null;
+                          setIsProfileOpen(false);
+                        } catch (err) {
+                          alert('Error al eliminar firma: ' + (err.response?.data?.message || err.message));
+                        }
+                      }
+                    }}
+                    className="w-full flex items-center justify-center gap-2 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 p-1.5 rounded-lg transition mt-2"
+                  >
+                    Borrar Firma Actual
+                  </button>
+                )}
               </div>
 
               <div className="border-t border-gray-100 pt-3">

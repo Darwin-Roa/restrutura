@@ -33,6 +33,8 @@ export const ProfesorDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [loadingTasks, setLoadingTasks] = useState(true);
   const [uploadingId, setUploadingId] = useState(null); // id o 'task_id'
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const submitLock = React.useRef(false);
   const [file, setFile] = useState(null);
   const [teacherDate, setTeacherDate] = useState('');
   const [teacherText, setTeacherText] = useState('');
@@ -54,7 +56,10 @@ export const ProfesorDashboard = () => {
 
   // Subir evidencia del Plan IA (PlanAction)
   const handleUploadPlanEvidence = async (actionId) => {
+    if (submitLock.current) return;
     if (!file) return alert('Selecciona un archivo primero');
+    submitLock.current = true;
+    setIsSubmitting(true);
     const formData = new FormData();
     formData.append('file', file);
     formData.append('action_id', actionId);
@@ -73,11 +78,15 @@ export const ProfesorDashboard = () => {
       }));
     } catch (err) {
       alert('Error: ' + (err.response?.data?.message || err.message));
+    } finally {
+      submitLock.current = false;
+      setIsSubmitting(false);
     }
   };
 
   // Subir evidencia de Tarea Fija (TaskAssignment)
   const handleUploadTaskEvidence = async (assignmentId) => {
+    if (submitLock.current) return;
     const assignment = assignments.find(a => a.id === assignmentId);
     const activityName = assignment?.fixed_task?.activity?.toLowerCase() || '';
     const isIntegration = activityName.includes('integración curricular con otros cursos');
@@ -90,6 +99,8 @@ export const ProfesorDashboard = () => {
     const taskToSubmit = assignments.find(a => a.id === assignmentId);
     if (!file && !teacherDate && !teacherText && coursesList.length === 0) return alert('Debes adjuntar un archivo o ingresar la información solicitada');
     
+    submitLock.current = true;
+    setIsSubmitting(true);
     const formData = new FormData();
     if (file) formData.append('file', file);
     formData.append('task_id', assignmentId);
@@ -121,6 +132,9 @@ export const ProfesorDashboard = () => {
       setAssignments(prev => prev.map(a => a.id === assignmentId ? { ...a, status: 'completed' } : a));
     } catch (err) {
       alert('Error: ' + (err.response?.data?.message || err.message));
+    } finally {
+      submitLock.current = false;
+      setIsSubmitting(false);
     }
   };
 
@@ -139,8 +153,16 @@ export const ProfesorDashboard = () => {
 
   const isPastDeadline = (deadlineDate) => {
     if (!deadlineDate) return false;
+    const str = String(deadlineDate).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+      const [y, m, d] = str.split('-').map(Number);
+      // JS Date Month is 0-indexed (0 = January)
+      // Usar constructor local evita que se interprete en UTC y se reste diferencia horaria
+      const limit = new Date(y, m - 1, d, 23, 59, 59, 999);
+      return new Date() > limit;
+    }
     const limit = new Date(deadlineDate);
-    if (isNaN(limit.getTime())) return false; // Si es un texto tipo "Marzo", no bloqueamos por seguridad
+    if (isNaN(limit.getTime())) return false;
     limit.setHours(23, 59, 59, 999);
     return new Date() > limit;
   };
@@ -351,8 +373,8 @@ export const ProfesorDashboard = () => {
                                     <input type="file" onChange={e => setFile(e.target.files[0])}
                                       className="text-[10px] w-full mb-3 file:bg-[#185FA5] file:text-white file:border-0 file:rounded file:px-3 file:py-1.5 file:font-medium file:cursor-pointer"/>
                                     <div className="flex gap-2 justify-end">
-                                      <button onClick={() => {setUploadingId(null); setFile(null); setTeacherDate(''); setTeacherText('');}} className="text-[11px] text-gray-500 px-2 py-1">Cancelar</button>
-                                      <button onClick={() => handleUploadPlanEvidence(action.id)} className="bg-blue-600 text-white px-3 py-1.5 rounded text-[11px] font-bold hover:bg-blue-700">Enviar al Director</button>
+                                      <button onClick={() => {setUploadingId(null); setFile(null); setTeacherDate(''); setTeacherText('');}} disabled={isSubmitting} className="text-[11px] text-gray-500 px-2 py-1">Cancelar</button>
+                                      <button onClick={() => handleUploadPlanEvidence(action.id)} disabled={isSubmitting} className="bg-blue-600 text-white px-3 py-1.5 rounded text-[11px] font-bold hover:bg-blue-700 disabled:opacity-50">{isSubmitting ? 'Enviando...' : 'Enviar al Director'}</button>
                                     </div>
                                   </div>
                                 ) : (
@@ -468,8 +490,8 @@ export const ProfesorDashboard = () => {
                                   className="text-[10px] w-full mb-2 file:bg-blue-100 file:text-blue-800 file:border-0 file:rounded file:px-2 file:py-1 file:cursor-pointer"/>
                                 
                                 <div className="flex gap-2 justify-end">
-                                  <button onClick={() => {setUploadingId(null); setFile(null); setTeacherDate(''); setTeacherText(''); setCoursesList([]); setCurrentCourse('');}} className="text-[10px] text-gray-500 border px-2 py-1 bg-white rounded">Cancelar</button>
-                                  <button onClick={() => handleUploadTaskEvidence(a.id)} className="bg-[#185FA5] text-white px-3 py-1 rounded text-[10px] font-bold hover:bg-blue-800">Enviar al Director</button>
+                                  <button onClick={() => {setUploadingId(null); setFile(null); setTeacherDate(''); setTeacherText(''); setCoursesList([]); setCurrentCourse('');}} disabled={isSubmitting} className="text-[10px] text-gray-500 border px-2 py-1 bg-white rounded">Cancelar</button>
+                                  <button onClick={() => handleUploadTaskEvidence(a.id)} disabled={isSubmitting} className="bg-[#185FA5] text-white px-3 py-1 rounded text-[10px] font-bold hover:bg-blue-800 disabled:opacity-50">{isSubmitting ? 'Enviando...' : 'Enviar al Director'}</button>
                                 </div>
                               </div>
                             ) : (

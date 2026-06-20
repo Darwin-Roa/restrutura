@@ -80,6 +80,7 @@ class AuthController extends Controller
                     'role' => $user->role,
                     'programa_id' => $user->programa_id,
                     'permissions' => $perms,
+                    'signature_path' => $user->signature_path,
                 ],
             ]);
         } catch (\Exception $e) {
@@ -91,6 +92,7 @@ class AuthController extends Controller
     {
         try {
             $jwtUser = $request->user();
+            $dbUser = User::find($jwtUser->id);
             $role = Role::where('name', $jwtUser->role)->first();
             $perms = [];
             if ($role) {
@@ -110,6 +112,7 @@ class AuthController extends Controller
                     'role' => $jwtUser->role,
                     'programa_id' => $jwtUser->programa_id ?? null,
                     'permissions' => $perms,
+                    'signature_path' => $dbUser ? $dbUser->signature_path : null,
                 ],
             ]);
         } catch (\Exception $e) {
@@ -131,6 +134,14 @@ class AuthController extends Controller
         }
 
         if ($request->hasFile('signature')) {
+            // Eliminar firma anterior si existe
+            if ($user->signature_path) {
+                $oldPath = public_path($user->signature_path);
+                if (file_exists($oldPath) && is_file($oldPath)) {
+                    @unlink($oldPath);
+                }
+            }
+
             $file = $request->file('signature');
             $filename = uniqid('sig_') . '.' . $file->getClientOriginalExtension();
             $path = $file->move(public_path('uploads/signatures'), $filename);
@@ -142,5 +153,27 @@ class AuthController extends Controller
         }
 
         return response()->json(['success' => false, 'message' => 'No se recibió ningún archivo'], 400);
+    }
+
+    public function deleteSignature(Request $request)
+    {
+        $jwtUser = $request->user();
+        $user = User::find($jwtUser->id);
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Usuario no encontrado'], 404);
+        }
+
+        if ($user->signature_path) {
+            $oldPath = public_path($user->signature_path);
+            if (file_exists($oldPath) && is_file($oldPath)) {
+                @unlink($oldPath);
+            }
+            $user->signature_path = null;
+            $user->save();
+            return response()->json(['success' => true, 'message' => 'Firma eliminada exitosamente']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'El usuario no tiene una firma configurada'], 400);
     }
 }

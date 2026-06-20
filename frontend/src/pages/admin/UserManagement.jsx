@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api/axios';
-import { Pencil, UserX, UserCheck, Save, X, UserPlus } from 'lucide-react';
+import { Pencil, UserX, UserCheck, Save, X, UserPlus, Trash2 } from 'lucide-react';
 
 const ROLE_LABELS = { admin: 'Administrador', director: 'Director', coordinador: 'Coordinador', profesor: 'Profesor' };
 const ROLE_COLORS = { admin: 'bg-purple-100 text-purple-700', director: 'bg-blue-100 text-blue-700', coordinador: 'bg-orange-100 text-orange-700', profesor: 'bg-green-100 text-green-700' };
@@ -90,6 +90,16 @@ export const UserManagement = () => {
       await api.put(`/users/${user.id}`, { is_active: !user.is_active });
       fetchUsers();
     } catch { alert('Error al cambiar estado'); }
+  };
+
+  const deleteUser = async (user) => {
+    if (!window.confirm(`ATENCIÓN: ¿Estás seguro que deseas ELIMINAR PERMANENTEMENTE a ${user.name}? Esta acción no se puede deshacer.`)) return;
+    try {
+      await api.delete(`/users/${user.id}`);
+      fetchUsers();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Error al eliminar usuario. Puede que tenga evidencias asociadas y la base de datos bloquee su borrado por seguridad.');
+    }
   };
 
   return (
@@ -234,8 +244,12 @@ export const UserManagement = () => {
                           <Pencil size={14} />
                         </button>
                         <button onClick={() => toggleActive(u)} title={u.is_active ? 'Desactivar' : 'Reactivar'}
-                          className={`p-1.5 rounded transition ${u.is_active ? 'bg-red-50 hover:bg-red-100 text-red-600' : 'bg-green-50 hover:bg-green-100 text-green-700'}`}>
+                          className={`p-1.5 rounded transition ${u.is_active ? 'bg-orange-50 hover:bg-orange-100 text-orange-600' : 'bg-green-50 hover:bg-green-100 text-green-700'}`}>
                           {u.is_active ? <UserX size={14} /> : <UserCheck size={14} />}
+                        </button>
+                        <button onClick={() => deleteUser(u)} title="Eliminar permanentemente"
+                          className="bg-red-50 hover:bg-red-100 text-red-600 p-1.5 rounded transition">
+                          <Trash2 size={14} />
                         </button>
                       </>
                     )}

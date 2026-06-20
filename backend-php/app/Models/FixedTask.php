@@ -16,6 +16,7 @@ class FixedTask extends Model
     protected $fillable = [
         'management_area', 'activity', 'expected_product', 'deadline_month',
         'scope', 'specific_teacher_id', 'created_by', 'is_active', 'period_id',
+        'programa_id',
     ];
 
     protected $casts = [
@@ -35,6 +36,11 @@ class FixedTask extends Model
     public function period()
     {
         return $this->belongsTo(Period::class, 'period_id');
+    }
+
+    public function programa()
+    {
+        return $this->belongsTo(Programa::class, 'programa_id');
     }
 
     public function assignments()

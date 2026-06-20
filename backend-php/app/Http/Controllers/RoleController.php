@@ -8,12 +8,13 @@ use Illuminate\Support\Facades\DB;
 
 class RoleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // El usuario pidió "eliminalo Profesor" de la gestión de roles.
-        // Ocultamos el rol 'profesor' para que no sea editable en la interfaz.
-        $roles = Role::where('name', '!=', 'profesor')->get();
-        return response()->json(['success' => true, 'roles' => $roles]);
+        $query = Role::query();
+        if ($request->query('hide_profesor') === 'true') {
+            $query->where('name', '!=', 'profesor');
+        }
+        return response()->json(['success' => true, 'roles' => $query->get()]);
     }
 
     public function store(Request $request)

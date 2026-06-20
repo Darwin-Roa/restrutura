@@ -33,7 +33,8 @@ export const ExportarDirector = () => {
   const [periodo, setPeriodo] = useState('...');
   const [loading, setLoading] = useState(true);
   
-  const [vista, setVista] = useState('heatmap'); // 'heatmap' o 'cards'
+  const [vista, setVista] = useState('heatmap'); // 'heatmap', 'cards', o 'area_detalle'
+  const [filtroAreaDropdown, setFiltroAreaDropdown] = useState('');
   const [docenteSeleccionado, setDocenteSeleccionado] = useState('');
   const [modalAbierto, setModalAbierto] = useState(false);
   const [modalInfo, setModalInfo] = useState(null); // { tipo: 'docente'|'area', docente, areaNombre? }
@@ -281,26 +282,49 @@ export const ExportarDirector = () => {
 
       {/* Barra de controles */}
       <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition p-4 flex flex-wrap items-center justify-between gap-3 mb-6">
-        <div className="flex items-center gap-3">
-          <User size={16} className="text-gray-400" />
-          <span className="text-sm text-gray-500">Consultar docente:</span>
-          <select 
-            value={docenteSeleccionado}
-            onChange={(e) => setDocenteSeleccionado(e.target.value)}
-            className="border border-gray-200 rounded-lg text-sm px-3 py-1.5 bg-gray-50 focus:ring-1 focus:ring-green-200 focus:border-green-300 outline-none"
-          >
-            <option value="">Seleccionar</option>
-            {datosDocentes.map((d, i) => (
-              <option key={i} value={d.nombre}>{d.nombre}</option>
-            ))}
-          </select>
-          <button 
-            onClick={() => { if(docenteSeleccionado) abrirModalDocente(docenteSeleccionado) }} 
-            className="text-sm px-3 py-1.5 rounded-lg transition-all flex items-center gap-1" 
-            style={{backgroundColor: '#f0fdf4', color: '#2c6e2f', border: '1px solid #dcfce7'}}
-          >
-            Ver actividades <ArrowRight size={14} />
-          </button>
+        <div className="flex items-center gap-6 flex-wrap">
+          {/* Buscar docente */}
+          <div className="flex items-center gap-3">
+            <User size={16} className="text-gray-400" />
+            <span className="text-sm text-gray-500">Consultar docente:</span>
+            <select 
+              value={docenteSeleccionado}
+              onChange={(e) => setDocenteSeleccionado(e.target.value)}
+              className="border border-gray-200 rounded-lg text-sm px-3 py-1.5 bg-gray-50 focus:ring-1 focus:ring-green-200 focus:border-green-300 outline-none"
+            >
+              <option value="">Seleccionar</option>
+              {datosDocentes.map((d, i) => (
+                <option key={i} value={d.nombre}>{d.nombre}</option>
+              ))}
+            </select>
+            <button 
+              onClick={() => { if(docenteSeleccionado) abrirModalDocente(docenteSeleccionado) }} 
+              className="text-sm px-3 py-1.5 rounded-lg transition-all flex items-center gap-1" 
+              style={{backgroundColor: '#f0fdf4', color: '#2c6e2f', border: '1px solid #dcfce7'}}
+            >
+              Ver actividades <ArrowRight size={14} />
+            </button>
+          </div>
+          
+          {/* Filtrar por actividad/área */}
+          <div className="flex items-center gap-3 border-l border-gray-100 pl-6">
+            <Layers size={16} className="text-gray-400" />
+            <span className="text-sm text-gray-500">Consultar actividad:</span>
+            <select 
+              value={filtroAreaDropdown}
+              onChange={(e) => {
+                 setFiltroAreaDropdown(e.target.value);
+                 if(e.target.value) setVista('area_detalle');
+                 else setVista('heatmap');
+              }}
+              className="border border-gray-200 rounded-lg text-sm px-3 py-1.5 bg-gray-50 focus:ring-1 focus:ring-green-200 focus:border-green-300 outline-none"
+            >
+              <option value="">Ver todas (Matriz)</option>
+              {areasList.map((a, i) => (
+                <option key={i} value={a.name}>{a.name}</option>
+              ))}
+            </select>
+          </div>
         </div>
         <div className="flex gap-5 border-b border-gray-100 pb-1">
           <button 
@@ -319,7 +343,64 @@ export const ExportarDirector = () => {
       </div>
 
       {/* Vistas */}
-      {vista === 'heatmap' ? (
+      {vista === 'area_detalle' && filtroAreaDropdown ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in duration-300">
+          {/* Columna: Han entregado */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+            <h3 className="font-semibold text-green-700 flex items-center gap-2 mb-4 border-b border-gray-100 pb-3">
+              <CheckCircle size={18} /> Entregas Completadas ({datosDocentes.filter(d => {
+                const a = d.areas.find(aa => aa.nombreArea === filtroAreaDropdown);
+                return a && a.total > 0 && a.completadas === a.total;
+              }).length})
+            </h3>
+            <ul className="space-y-2">
+              {datosDocentes.filter(d => {
+                const a = d.areas.find(aa => aa.nombreArea === filtroAreaDropdown);
+                return a && a.total > 0 && a.completadas === a.total;
+              }).map((doc, i) => (
+                <li key={i} className="flex items-center gap-3 text-sm text-gray-700 p-2.5 hover:bg-gray-50 rounded-lg transition cursor-pointer border border-transparent hover:border-gray-100" onClick={() => abrirModalArea(doc.nombre, filtroAreaDropdown)}>
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0" style={{background:'#e6f4ec', color:'#16a34a'}}>
+                    {doc.nombre.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase()}
+                  </div>
+                  <span className="font-medium flex-1">{doc.nombre}</span>
+                  <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">100%</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          
+          {/* Columna: Pendientes */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+            <h3 className="font-semibold text-amber-600 flex items-center gap-2 mb-4 border-b border-gray-100 pb-3">
+              <Clock size={18} /> Entregas Pendientes ({datosDocentes.filter(d => {
+                const a = d.areas.find(aa => aa.nombreArea === filtroAreaDropdown);
+                return a && a.total > 0 && a.completadas < a.total;
+              }).length})
+            </h3>
+            <ul className="space-y-2">
+              {datosDocentes.filter(d => {
+                const a = d.areas.find(aa => aa.nombreArea === filtroAreaDropdown);
+                return a && a.total > 0 && a.completadas < a.total;
+              }).map((doc, i) => {
+                const areaInfo = doc.areas.find(aa => aa.nombreArea === filtroAreaDropdown);
+                return (
+                  <li key={i} className="flex items-center justify-between text-sm text-gray-700 p-2.5 hover:bg-gray-50 rounded-lg transition cursor-pointer border border-transparent hover:border-gray-100" onClick={() => abrirModalArea(doc.nombre, filtroAreaDropdown)}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0" style={{background:'#fef3c7', color:'#d97706'}}>
+                        {doc.nombre.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase()}
+                      </div>
+                      <span className="font-medium">{doc.nombre}</span>
+                    </div>
+                    <span className="text-[10px] bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-bold">
+                      {areaInfo.completadas}/{areaInfo.total} entregas
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </div>
+      ) : vista === 'heatmap' ? (
         <div className="bg-white rounded-xl shadow-sm overflow-x-auto relative">
           <table className="w-full text-sm border-collapse min-w-[900px]">
             <thead>

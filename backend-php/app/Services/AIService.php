@@ -17,12 +17,33 @@ class AIService
     private $openaiApiKey;
     private $openaiModel;
 
+    // Anthropic Settings
+    private $anthropicApiKey;
+    private $anthropicModel;
+
+    // DeepSeek Settings
+    private $deepseekApiKey;
+    private $deepseekModel;
+
+    // Groq Settings
+    private $groqApiKey;
+    private $groqModel;
+
     public function __construct()
     {
         $this->provider = env('AI_PROVIDER', 'gemini');
         $this->geminiApiKey = env('GEMINI_API_KEY');
         $this->openaiApiKey = env('OPENAI_API_KEY');
         $this->openaiModel = env('OPENAI_MODEL', 'gpt-4o-mini');
+        
+        $this->anthropicApiKey = env('ANTHROPIC_API_KEY');
+        $this->anthropicModel = env('ANTHROPIC_MODEL', 'claude-3-5-sonnet-20241022');
+        
+        $this->deepseekApiKey = env('DEEPSEEK_API_KEY');
+        $this->deepseekModel = env('DEEPSEEK_MODEL', 'deepseek-chat');
+        
+        $this->groqApiKey = env('GROQ_API_KEY');
+        $this->groqModel = env('GROQ_MODEL', 'llama-3.1-70b-versatile');
     }
 
     /**
@@ -32,6 +53,15 @@ class AIService
     {
         if ($this->provider === 'openai') {
             return $this->callOpenAI($prompt, $maxRetries);
+        }
+        if ($this->provider === 'anthropic') {
+            return $this->callAnthropic($prompt, $maxRetries);
+        }
+        if ($this->provider === 'deepseek') {
+            return $this->callDeepSeek($prompt, $maxRetries);
+        }
+        if ($this->provider === 'groq') {
+            return $this->callGroq($prompt, $maxRetries);
         }
         
         // Default to Gemini
@@ -64,6 +94,7 @@ class AIService
                 $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? null;
 
                 if ($text) {
+                    $text = $this->sanitizeJSON($text);
                     $decoded = json_decode($text, true);
                     return $decoded ?? $text;
                 }
@@ -106,6 +137,7 @@ class AIService
                 $text = $data['choices'][0]['message']['content'] ?? null;
 
                 if ($text) {
+                    $text = $this->sanitizeJSON($text);
                     $decoded = json_decode($text, true);
                     return $decoded ?? $text;
                 }
@@ -120,6 +152,134 @@ class AIService
         }
 
         throw new \Exception('OpenAI API: max retries exceeded');
+    }
+
+    private function callAnthropic($prompt, $maxRetries = 5)
+    {
+        $url = "https://api.anthropic.com/v1/messages";
+
+        for ($attempt = 0; $attempt < $maxRetries; $attempt++) {
+            try {
+                $response = Http::timeout(120)
+                    ->withHeaders([
+                        'x-api-key' => $this->anthropicApiKey,
+                        'anthropic-version' => '2023-06-01',
+                        'content-type' => 'application/json',
+                    ])
+                    ->post($url, [
+                        'model' => $this->anthropicModel,
+                        'max_tokens' => 4000,
+                        'messages' => [
+                            ['role' => 'user', 'content' => $prompt]
+                        ]
+                    ]);
+
+                if ($response->status() === 429 || $response->status() === 503) {
+                    usleep(pow(2, $attempt) * 1000000);
+                    continue;
+                }
+
+                $data = $response->json();
+                $text = $data['content'][0]['text'] ?? null;
+
+                if ($text) {
+                    $text = $this->sanitizeJSON($text);
+                    $decoded = json_decode($text, true);
+                    return $decoded ?? $text;
+                }
+
+                return null;
+            } catch (\Exception $e) {
+                Log::error("Anthropic API error attempt {$attempt}: " . $e->getMessage());
+                if ($attempt < $maxRetries - 1) {
+                    usleep(pow(2, $attempt) * 1000000);
+                }
+            }
+        }
+
+        throw new \Exception('Anthropic API: max retries exceeded');
+    }
+
+    private function callDeepSeek($prompt, $maxRetries = 5)
+    {
+        $url = "https://api.deepseek.com/v1/chat/completions";
+
+        for ($attempt = 0; $attempt < $maxRetries; $attempt++) {
+            try {
+                $response = Http::timeout(120)
+                    ->withToken($this->deepseekApiKey)
+                    ->post($url, [
+                        'model' => $this->deepseekModel,
+                        'messages' => [
+                            ['role' => 'user', 'content' => $prompt]
+                        ],
+                        'response_format' => ['type' => 'json_object'],
+                    ]);
+
+                if ($response->status() === 429 || $response->status() === 503) {
+                    usleep(pow(2, $attempt) * 1000000);
+                    continue;
+                }
+
+                $data = $response->json();
+                $text = $data['choices'][0]['message']['content'] ?? null;
+
+                if ($text) {
+                    $text = $this->sanitizeJSON($text);
+                    $decoded = json_decode($text, true);
+                    return $decoded ?? $text;
+                }
+
+                return null;
+            } catch (\Exception $e) {
+                Log::error("DeepSeek API error: " . $e->getMessage());
+                if ($attempt < $maxRetries - 1) {
+                    usleep(pow(2, $attempt) * 1000000);
+                }
+            }
+        }
+        throw new \Exception('DeepSeek API: max retries exceeded');
+    }
+
+    private function callGroq($prompt, $maxRetries = 5)
+    {
+        $url = "https://api.groq.com/openai/v1/chat/completions";
+
+        for ($attempt = 0; $attempt < $maxRetries; $attempt++) {
+            try {
+                $response = Http::timeout(120)
+                    ->withToken($this->groqApiKey)
+                    ->post($url, [
+                        'model' => $this->groqModel,
+                        'messages' => [
+                            ['role' => 'user', 'content' => $prompt]
+                        ],
+                        'response_format' => ['type' => 'json_object'],
+                    ]);
+
+                if ($response->status() === 429 || $response->status() === 503) {
+                    usleep(pow(2, $attempt) * 1000000);
+                    continue;
+                }
+
+                $data = $response->json();
+                $text = $data['choices'][0]['message']['content'] ?? null;
+
+                if ($text) {
+                    $text = $this->sanitizeJSON($text);
+                    $decoded = json_decode($text, true);
+                    return $decoded ?? $text;
+                }
+
+                return null;
+            } catch (\Exception $e) {
+                Log::error("Groq API error: " . $e->getMessage());
+                if ($attempt < $maxRetries - 1) {
+                    usleep(pow(2, $attempt) * 1000000);
+                }
+            }
+        }
+        throw new \Exception('Groq API: max retries exceeded');
     }
 
     public function generateImprovementPlan($data)
@@ -246,5 +406,52 @@ class AIService
         PROMPT;
 
         return $this->callAI($prompt);
+    }
+
+    /**
+     * Sanitiza la respuesta de la IA para asegurar que sea un JSON válido
+     * removiendo bloques de markdown como ```json ... ```
+     */
+    private function sanitizeJSON($text)
+    {
+        if (empty($text)) return $text;
+
+        // Si empieza con markdown de código
+        if (preg_match('/```(?:json)?\s*([\s\S]*?)\s*```/', $text, $matches)) {
+            $text = $matches[1];
+        }
+
+        // Buscar el primer { o [ y el último } o ]
+        $firstChar = strpos($text, '{');
+        $firstArrayChar = strpos($text, '[');
+        
+        $startPos = false;
+        if ($firstChar !== false && $firstArrayChar !== false) {
+            $startPos = min($firstChar, $firstArrayChar);
+        } elseif ($firstChar !== false) {
+            $startPos = $firstChar;
+        } elseif ($firstArrayChar !== false) {
+            $startPos = $firstArrayChar;
+        }
+
+        if ($startPos !== false) {
+            $lastChar = strrpos($text, '}');
+            $lastArrayChar = strrpos($text, ']');
+            
+            $endPos = false;
+            if ($lastChar !== false && $lastArrayChar !== false) {
+                $endPos = max($lastChar, $lastArrayChar);
+            } elseif ($lastChar !== false) {
+                $endPos = $lastChar;
+            } elseif ($lastArrayChar !== false) {
+                $endPos = $lastArrayChar;
+            }
+
+            if ($endPos !== false && $endPos >= $startPos) {
+                return substr($text, $startPos, $endPos - $startPos + 1);
+            }
+        }
+
+        return $text;
     }
 }

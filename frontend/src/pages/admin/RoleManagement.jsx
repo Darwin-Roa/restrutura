@@ -77,7 +77,7 @@ export const RoleManagement = () => {
 
   const fetchRoles = async () => {
     try {
-      const res = await api.get('/roles');
+      const res = await api.get('/roles?hide_profesor=true');
       setCustomRoles(res.data.roles.filter(r => !r.is_system));
     } catch (err) {
       console.error('Error fetching roles:', err);
