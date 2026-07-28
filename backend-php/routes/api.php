@@ -143,6 +143,7 @@ Route::middleware('jwt.auth')->group(function () {
     // --- Export ---
     Route::get('/export/plan/{planId}/preview', [ExportController::class, 'previewPlanHtml']);
     Route::get('/export/plan/{planId}/pdf', [ExportController::class, 'exportPlanPdf']);
+    Route::get('/export/plan/{planId}/reporte-pdf', [ExportController::class, 'exportReportePdf']);
     Route::get('/export/global/csv', [ExportController::class, 'exportGlobalCsv']);
     Route::get('/export/global/excel-matriz', [ExportController::class, 'exportMatrizGlobalExcel']);
     Route::get('/export/global/matrix-json', [ExportController::class, 'getMatrizGlobalJson']);

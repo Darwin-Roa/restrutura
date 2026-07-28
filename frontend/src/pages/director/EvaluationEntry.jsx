@@ -159,7 +159,7 @@ export const EvaluationEntry = () => {
           <div className="bg-blue-100 p-2.5 rounded-lg"><UserCheck className="text-blue-700" size={24} /></div>
           <div>
             <h1 className="text-xl font-bold text-[#0C447C]">Gestión de Evaluaciones</h1>
-            <p className="text-sm text-gray-500">Cargue los resultados de desempeño para alimentar el Copilot de planes de mejora.</p>
+            <p className="text-sm text-gray-500">Cargue los resultados de desempeño para alimentar la IA de planes de mejora.</p>
           </div>
         </div>
       </div>

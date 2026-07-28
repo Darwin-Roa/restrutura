@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { useNavigate, Navigate } from 'react-router-dom';
+import { useNavigate, Navigate, useLocation } from 'react-router-dom';
 import { GraduationCap, LogIn, Eye, EyeOff, ShieldCheck, LayoutDashboard, Bot, CheckCircle2 } from 'lucide-react';
 
 export const Login = () => {
@@ -10,9 +10,12 @@ export const Login = () => {
   const [loading, setLoading]   = useState(false);
   const { login, user }         = useAuth();
   const navigate                = useNavigate();
+  const location                = useLocation();
   const [error, setError]       = useState('');
 
-  if (user) return <Navigate to={`/${user.role}`} />;
+  const from = location.state?.from?.pathname + (location.state?.from?.search || '') || (user ? `/${user.role}` : '/');
+
+  if (user) return <Navigate to={from} replace />;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,7 +23,8 @@ export const Login = () => {
     setError('');
     try {
       const loggedUser = await login(email, password);
-      navigate(`/${loggedUser.role}`);
+      const redirectPath = location.state?.from?.pathname + (location.state?.from?.search || '') || `/${loggedUser.role}`;
+      navigate(redirectPath, { replace: true });
     } catch {
       setError('Credenciales incorrectas. Verifique su email y contraseña.');
     } finally {

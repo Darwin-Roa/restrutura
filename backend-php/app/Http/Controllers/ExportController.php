@@ -49,6 +49,28 @@ class ExportController extends Controller
         }
     }
 
+    /**
+     * Genera la carta oficial completa pero resaltando en rojo
+     * las tareas que no se hayan cumplido.
+     */
+    public function exportReportePdf(Request $request, $planId)
+    {
+        try {
+            $plan = ImprovementPlan::with(['teacher.programa', 'period', 'actions', 'evaluation'])
+                ->findOrFail($planId);
+
+            $jwtUser = $request->user();
+            $userModel = \App\Models\User::find($jwtUser->id);
+
+            $html = ExportService::generarHTMLCartaReporte($plan, $userModel);
+            $pdf = Pdf::loadHTML($html)->setPaper('letter');
+
+            return $pdf->download("reporte_cumplimiento_{$plan->teacher->name}.pdf");
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
     public function exportGlobalCsv(Request $request)
     {
         try {

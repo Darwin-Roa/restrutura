@@ -61,7 +61,6 @@ export const PlanesMejora = () => {
   const handleDownloadPDF = async (planId, professorName) => {
     try {
       const res = await api.get(`/export/plan/${planId}/pdf`, { responseType: 'blob' });
-      // Verificar que realmente recibimos un PDF (no un JSON de error)
       const contentType = res.headers['content-type'] || '';
       if (!contentType.includes('pdf')) {
         const text = await res.data.text();
@@ -80,6 +79,29 @@ export const PlanesMejora = () => {
       console.error('Error PDF:', e);
       const confirm = window.confirm(`No se pudo generar el PDF: ${e.message}\n\n¿Deseas abrir la vista previa en una nueva pestaña?`);
       if (confirm) handlePreviewPlan(planId);
+    }
+  };
+
+  const handleDownloadReportePDF = async (planId, professorName) => {
+    try {
+      const res = await api.get(`/export/plan/${planId}/reporte-pdf`, { responseType: 'blob' });
+      const contentType = res.headers['content-type'] || '';
+      if (!contentType.includes('pdf')) {
+        const text = await res.data.text();
+        console.error('Respuesta inesperada:', text);
+        throw new Error('El servidor no devolvió un PDF válido.');
+      }
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Reporte_${professorName.replace(/\s+/g, '_')}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => window.URL.revokeObjectURL(url), 5000);
+    } catch (e) {
+      console.error('Error PDF Reporte:', e);
+      alert(`No se pudo generar el reporte: ${e.message}`);
     }
   };
 
@@ -394,12 +416,19 @@ export const PlanesMejora = () => {
                                   >
                                     <Download size={14}/> CARTA PDF
                                   </button>
-                                   <button 
+                                  <button 
                                      onClick={() => handlePreviewPlan(officialPlan.id)}
                                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold rounded shadow flex items-center gap-2 transition"
                                      title="Abrir carta del plan en el navegador"
                                    >
                                      <FileText size={14}/> VER CARTA
+                                   </button>
+                                   <button 
+                                     onClick={() => handleDownloadReportePDF(officialPlan.id, tData.teacher.name)}
+                                     className="px-3 py-1.5 bg-[#185FA5] text-white text-[10px] font-bold rounded shadow hover:bg-[#0c447c] flex items-center gap-2 transition"
+                                     title="Descargar reporte completo con tareas incumplidas resaltadas en rojo"
+                                   >
+                                     <Download size={14}/> REPORTE
                                    </button>
                                   <button 
                                     onClick={() => setShowPlanDoc(!showPlanDoc)}
@@ -644,7 +673,7 @@ export const PlanesMejora = () => {
                                 return (
                                   <React.Fragment>
                                     {renderItems(institutionalTasks, 'Tareas Institucionales / Fijas', 'text-blue-800', '🏢')}
-                                    {renderItems(aiPlanActions, 'Plan de Mejoramiento IA (Copilot)', 'text-purple-800', '🤖')}
+                                    {renderItems(aiPlanActions, 'Plan de Mejoramiento IA', 'text-purple-800', '🤖')}
                                     {institutionalTasks.length === 0 && aiPlanActions.length === 0 && (
                                        <tr><td colSpan="5" className="px-6 py-12 text-center text-gray-400 italic">No se han detectado responsabilidades asignadas.</td></tr>
                                     )}

@@ -25,7 +25,11 @@ const STATUS_BADGE = {
 
 export const ProfesorDashboard = () => {
   const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState('plan');
+  
+  // Inicializa la pestaña activa desde el parámetro 'tab' de la URL si existe (ej. ?tab=tasks)
+  const queryParams = new URLSearchParams(window.location.search);
+  const initialTab = queryParams.get('tab') === 'tasks' ? 'tasks' : 'plan';
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   const [plan, setPlan] = useState(null);
   const [assignments, setAssignments] = useState([]);
@@ -330,7 +334,7 @@ export const ProfesorDashboard = () => {
                 <div className="space-y-6 max-w-4xl mx-auto">
                   {/* Diagnóstico */}
                   <div className="bg-white p-6 rounded-xl border border-[#e5e7eb] shadow-sm">
-                    <h3 className="font-bold text-[11px] text-[#0C447C] mb-3 uppercase tracking-wider flex items-center gap-2"><Bot size={14}/> Diagnóstico Copilot</h3>
+                    <h3 className="font-bold text-[11px] text-[#0C447C] mb-3 uppercase tracking-wider flex items-center gap-2"><Bot size={14}/> Diagnóstico IA</h3>
                     <p className="text-[13px] text-[#4b5563] leading-relaxed">{plan.diagnosis_text || 'Plan generado por el Director de Programa.'}</p>
                   </div>
 
@@ -415,7 +419,18 @@ export const ProfesorDashboard = () => {
                     Adjunta la evidencia de cada una y el Director será quien apruebe o rechace tu cumplimiento.
                   </p>
                   <div className="grid grid-cols-2 gap-4">
-                    {assignments.map(a => (
+                    {[...assignments].sort((a, b) => {
+                      // Tareas verificadas van al final
+                      if (a.status === 'verified' && b.status !== 'verified') return 1;
+                      if (b.status === 'verified' && a.status !== 'verified') return -1;
+                      // Ordenar por fecha límite ascendente (sin fecha al final)
+                      const dateA = a.custom_deadline || a.fixed_task?.deadline_month;
+                      const dateB = b.custom_deadline || b.fixed_task?.deadline_month;
+                      if (!dateA && !dateB) return 0;
+                      if (!dateA) return 1;
+                      if (!dateB) return -1;
+                      return new Date(dateA) - new Date(dateB);
+                    }).map(a => (
                       <div key={a.id} className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between">
                         <div>
                           <div className="flex justify-between items-start mb-3">
@@ -446,6 +461,25 @@ export const ProfesorDashboard = () => {
                             <span className="text-[11px] font-semibold text-gray-500">Estado:</span>
                             {STATUS_BADGE[a.status] || STATUS_BADGE.pending}
                           </div>
+
+                          {/* Resultado / Calificación del Director (solo visible cuando está verificada) */}
+                          {a.status === 'verified' && (
+                            <div
+                              className="flex items-center gap-2 px-3 py-2 rounded-lg border"
+                              style={{ background: 'linear-gradient(135deg,#f0fdf4,#dcfce7)', borderColor: '#86efac' }}
+                            >
+                              <Star size={13} style={{ color: '#16a34a' }} />
+                              <div className="flex-1">
+                                <span className="text-[10px] font-black uppercase tracking-wide" style={{ color: '#15803d' }}>Resultado</span>
+                                <div className="text-[11px] font-bold text-gray-700 leading-snug">
+                                  {a.teacher_response
+                                    ? <span>{a.teacher_response}</span>
+                                    : <span className="text-green-700">Evidencia aceptada ✓</span>
+                                  }
+                                </div>
+                              </div>
+                            </div>
+                          )}
 
                           {/* Botones de acción */}
                           {a.status !== 'verified' && (

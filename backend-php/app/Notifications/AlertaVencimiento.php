@@ -34,7 +34,7 @@ class AlertaVencimiento extends Notification implements ShouldQueue
 
         if ($isHours) {
             $urgencia = '⏳ ALERTA DE ÚLTIMA HORA';
-            $cuerpo = "Faltan exactamente <strong>{$this->diasRestantes} hora(s)</strong> para que se cierre el plazo de entrega.";
+            $cuerpo = "Faltan exactamente **{$this->diasRestantes} hora(s)** para que se cierre el plazo de entrega.";
         } else {
             $urgencia = match(true) {
                 $this->diasRestantes === 0 => '🚨 HOY VENCE',
@@ -45,18 +45,20 @@ class AlertaVencimiento extends Notification implements ShouldQueue
 
             $cuerpo = $this->diasRestantes === 0
                 ? 'Hoy es el último día para entregar esta actividad.'
-                : "Faltan <strong>{$this->diasRestantes} día(s)</strong> para que venza el plazo de esta actividad.";
+                : "Faltan **{$this->diasRestantes} día(s)** para que venza el plazo de esta actividad.";
         }
 
         $tipoLabel = $baseTipo === 'plan' ? 'Plan de Mejoramiento' : 'Tarea Institucional';
+        $tab = $baseTipo === 'plan' ? 'plan' : 'tasks';
+        $urlDestino = url("/profesor?tab={$tab}");
 
         return (new MailMessage)
             ->subject("{$urgencia}: {$this->actividad}")
-            ->greeting("Hola {$notifiable->nombre},")
+            ->greeting("Hola " . ($notifiable->nombre ?? 'Profesor(a)') . ",")
             ->line("{$cuerpo}")
             ->line("**Tipo:** {$tipoLabel}")
             ->line("**Actividad:** {$this->actividad}")
-            ->action('Ver mis actividades en la plataforma', url('/profesor'))
+            ->action('Ver mis actividades en la plataforma', $urlDestino)
             ->line('Por favor accede a la plataforma para entregar tu evidencia a tiempo.')
             ->salutation('Sistema de Mejoramiento Profesoral — Universidad Simón Bolívar');
     }
